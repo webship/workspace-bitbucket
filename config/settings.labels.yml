@@ -1,0 +1,13 @@
+# Labels for core/config/plugin.bitbucket.settings.yml, merged into the Settings page.
+host:
+  label: Host
+  info: 'bitbucket.org (Bitbucket Cloud).'
+username:
+  label: Username
+  info: 'The Bitbucket username (not the email).'
+email:
+  label: Commit email
+  info: 'The address commits pushed there carry. Blank falls back to contributor.email.'
+token:
+  label: App password
+  info: 'An app password (Personal settings → App passwords) with read on repositories, issues and pull requests.'

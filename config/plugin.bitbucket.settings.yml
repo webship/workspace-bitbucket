@@ -1,0 +1,11 @@
+# Bitbucket — core/config/plugin.bitbucket.settings.yml
+#
+# How the dashboard reaches Bitbucket Cloud: the REST API with an app password (Personal settings → App passwords; read on repositories, issues and pull requests), sent as basic auth with the username. Bitbucket has no CLI of its own.
+# bitbucket.org (Bitbucket Cloud).
+host: bitbucket.org
+# The Bitbucket username (not the email).
+username: CHANGE_ME
+# The address commits pushed there carry. Blank falls back to contributor.email.
+email: CHANGE_ME
+# An app password (Personal settings → App passwords) with read on repositories, issues and pull requests.
+token: CHANGE_ME
