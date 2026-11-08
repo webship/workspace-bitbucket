@@ -10,4 +10,4 @@ Feature: The Bitbucket plugin on a project row
   Scenario: The plugin is listed on the Plugins page
     Given I am on "/settings/plugins"
      Then I should see "Bitbucket"
-      And I should see "@webship/workspace-bitbucket"
+      And I should see "@webship.co/workspace-bitbucket"

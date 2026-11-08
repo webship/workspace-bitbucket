@@ -1,10 +1,10 @@
-# @webship/workspace-bitbucket
+# @webship.co/workspace-bitbucket
 
 Bitbucket for the [Webship Workspace](https://github.com/webship/workspace) dashboard: the **BITBUCKET**
 menu on every project whose git remote is on Bitbucket (open the repository, the open issues and
 pull requests, open one from the current branch, copy the clone URL), the repository chip on the
 card, "Clone a repository" when a new folder is made, and the credential the dashboard uses for the
-host. A provider of [`@webship/workspace-forge`](https://github.com/webship/workspace-forge).
+host. A provider of [`@webship.co/workspace-forge`](https://github.com/webship/workspace-forge).
 
 The lists come from the Bitbucket Cloud REST API (`/2.0/repositories/<workspace>/<repo>/issues`, `/pullrequests?state=OPEN`) with the username and app password as basic auth. Bitbucket has no CLI, so "New pull request" opens Bitbucket's own page for the current branch.
 

@@ -4,9 +4,9 @@
  * Bitbucket's own page for the branch.
  */
 
-import type { PluginApi, PluginLib } from '@webship/workspace-plugin-api';
-import { repoPathAt } from '@webship/workspace-forge';
-import type { ForgeItem, ForgeProvider } from '@webship/workspace-forge';
+import type { PluginApi, PluginLib } from '@webship.co/workspace-plugin-api';
+import { repoPathAt } from '@webship.co/workspace-forge';
+import type { ForgeItem, ForgeProvider } from '@webship.co/workspace-forge';
 
 const configured = (v: unknown) => { const s = String(v == null ? '' : v).trim(); return s && s !== 'CHANGE_ME' ? s : null; };
 
