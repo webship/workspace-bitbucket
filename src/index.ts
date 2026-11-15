@@ -15,6 +15,12 @@ import { bitbucketProvider } from './lib/provider';
 
 export { bitbucketProvider };
 
+/** The AI items the installer places: agents in ai-agents/, skills in ai-skills/, commands in ai-commands/, prompts in ai-prompts/. */
+export const AGENTS: string[] = ['bitbucket-pr-preparer'];
+export const SKILLS: string[] = ['bitbucket-forge'];
+export const AI_COMMANDS: string[] = ['bitbucket-status'];
+export const PROMPTS: string[] = ['bitbucket-branch-to-pr'];
+
 export function register(api: PluginApi): void {
   registerForge(api, bitbucketProvider(api));
 }
