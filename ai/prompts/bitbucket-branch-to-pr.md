@@ -6,6 +6,7 @@ Prepare the pull request of the current branch of the project <project> on Bitbu
 # ~/workspace/<folder>/<project> · container-based (DDEV by default) · git and curl run on the machine
 # Bitbucket has no command-line tool: you push the branch and write the text, I open the page
 # never read or print the app password; never tick "Reviewed by a human" or "Code review by maintainers"
+# a feature to write or a run to read: the book Automated Functional Testing Recipes first (its README.md, then the matching chapter), from .claude/automated-functional-testing-recipes/ in the project, ~/.claude/automated-functional-testing-recipes/ or https://github.com/webship/webship-js-ai-agent/tree/2.0.x/automated-functional-testing-recipes
 
 1. cd ~/workspace/<folder>/<project> ; git status --short ; git branch --show-current ; git remote get-url origin
    stop if the remote is not on bitbucket.org, or if the branch is the default branch
