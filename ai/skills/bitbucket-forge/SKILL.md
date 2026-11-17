@@ -95,9 +95,10 @@ list, hand over to the agent `bitbucket-pr-preparer`, or start a session with th
 
 ## Traps
 
-- **The issues list shows "Functionality has been deprecated"**: Bitbucket Cloud answers that (HTTP
-  410, its change CHANGE-3071) for the issues call, also on a public repository. The pull requests
-  list is not affected.
+- **Open issues lists nothing**: Bitbucket Cloud retired the issues call (HTTP 410, its change
+  CHANGE-3071), also on a public repository, so the window says "Bitbucket Cloud no longer lists
+  issues through its API" with the repository's issues page to open instead. The pull requests list
+  is not affected.
 - **A username without an app password**, or the other way round: the dashboard sends no
   credential at all.
 - **The account's email address in `username:`**: Bitbucket wants the username.
