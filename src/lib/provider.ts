@@ -42,7 +42,17 @@ export function bitbucketProvider(api: PluginApi): ForgeProvider {
     cloneUrl: (spec) => (/^(https?:\/\/|git@)/.test(spec) ? spec : `https://${host()}/${spec.replace(/\.git$/, '')}.git`),
     urls: (repo) => ({ issues: `${repo.web}/issues`, pulls: `${repo.web}/pull-requests/`, newIssue: `${repo.web}/issues/new`, newPull: (branch) => `${repo.web}/pull-requests/new?source=${encodeURIComponent(branch)}&t=1` }),
     listIssues: async (repo, lib, e) => {
-      const data = await rest(lib, e, `${apiBase()}/${repo.path}/issues?pagelen=20&sort=-updated_on&q=${encodeURIComponent('state="new" OR state="open"')}`);
+      let data: any;
+      try {
+        data = await rest(lib, e, `${apiBase()}/${repo.path}/issues?pagelen=20&sort=-updated_on&q=${encodeURIComponent('state="new" OR state="open"')}`);
+      } catch (err) {
+        // Bitbucket Cloud retired the issues call (HTTP 410, CHANGE-3071), for public repositories too (#5): say what
+        // that means and where the issues are, rather than its own "Functionality has been deprecated".
+        if (/CHANGE-3071|has been deprecated/i.test(String((err as Error).message || err))) {
+          throw new Error(`Bitbucket Cloud no longer lists issues through its API (CHANGE-3071), so they cannot be shown here. Open them on the repository: ${repo.web}/issues`);
+        }
+        throw err;
+      }
       return ((data && data.values) || []).map((i: any): ForgeItem => ({ number: i.id, title: i.title, url: i.links && i.links.html && i.links.html.href, author: i.reporter && (i.reporter.nickname || i.reporter.display_name), updated: i.updated_on, state: i.state }));
     },
     listPulls: async (repo, lib, e) => {
