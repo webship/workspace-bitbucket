@@ -84,3 +84,30 @@ test('a remote on another forge gets no BITBUCKET menu', () => {
   register(api);
   assert.strictEqual(calls.rowMenus.bitbucket.fn({ key: 'dev', project: 'site1', dir: path.join(root, 'dev'), meta: {}, allowed: new Set(), vals: () => '' }), null);
 });
+
+test('the credential never rides on curl\'s command line: it is read from a header file only its owner can read, removed after', async () => {
+  const PATH = process.env.PATH;
+  process.env.PATH = fs.mkdtempSync(path.join(os.tmpdir(), 'no-cli-'));   // no CLI: the REST API through curl
+  try {
+    const seen: any[] = [];
+    const lib: any = {
+      cliError: (s: string) => s,
+      run: async (cmd: string, args: string[]) => {
+        const at = args.find((a) => a.startsWith('@'));
+        const file = at ? at.slice(1) : '';
+        seen.push({ cmd, args, file, text: file ? fs.readFileSync(file, 'utf8') : '', mode: file ? (fs.statSync(file).mode & 0o777) : 0 });
+        return { ok: true, code: 0, stdout: '{"values":[]}', stderr: '' };
+      },
+    };
+    await bitbucketProvider(fakeApi(os.tmpdir(), { username: 'me', token: 'app-secret-x' }).api).listPulls({ path: 'team/repo' } as any, lib, { ...process.env, BITBUCKET_USERNAME: 'me', BITBUCKET_APP_PASSWORD: 'app-secret-x' });
+    assert.ok(seen.length >= 1 && seen.every((s) => s.cmd === 'curl'), JSON.stringify(seen.map((s) => s.cmd)));
+    for (const s of seen) {
+      assert.ok(!s.args.some((a: string) => a.includes('app-secret-x')), `not on the command line: ${s.args.join(' ')}`);
+      assert.match(s.text, new RegExp(`^Authorization: Basic ${Buffer.from('me:app-secret-x').toString('base64')}$`, 'm'), 'in the header file');
+      assert.strictEqual(s.mode, 0o600);
+      assert.ok(!fs.existsSync(s.file), 'the file is removed after the call');
+    }
+  } finally {
+    process.env.PATH = PATH;
+  }
+});
