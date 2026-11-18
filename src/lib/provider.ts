@@ -4,11 +4,28 @@
  * Bitbucket's own page for the branch.
  */
 
+import fs from 'fs';
+import os from 'os';
+import path from 'path';
 import type { PluginApi, PluginLib } from '@webship.co/workspace-plugin-api';
 import { repoPathAt } from '@webship.co/workspace-forge';
 import type { ForgeItem, ForgeProvider } from '@webship.co/workspace-forge';
 
 const configured = (v: unknown) => { const s = String(v == null ? '' : v).trim(); return s && s !== 'CHANGE_ME' ? s : null; };
+
+/**
+ * Run `fn` with curl arguments that read these header lines from a file only this user can read, removed
+ * after. On curl's command line a token is readable by every account of the machine for as long as curl
+ * runs (`ps`, /proc/<pid>/cmdline); `-H @file` (curl 7.55+) keeps it off.
+ */
+export async function withHeaderFile<T>(headers: string[], fn: (args: string[]) => Promise<T>): Promise<T> {
+  if (!headers.length) return fn([]);
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'ws-curl-'));
+  const file = path.join(dir, 'headers');
+  fs.writeFileSync(file, `${headers.join('\n')}\n`, { mode: 0o600 });
+  try { return await fn(['-H', `@${file}`]); } finally { fs.rmSync(dir, { recursive: true, force: true }); }
+}
+
 
 export function bitbucketProvider(api: PluginApi): ForgeProvider {
   const settings = () => api.settings.read() || {};
@@ -20,8 +37,10 @@ export function bitbucketProvider(api: PluginApi): ForgeProvider {
   };
 
   async function rest(lib: PluginLib, e: NodeJS.ProcessEnv, url: string): Promise<any> {
-    const auth = e.BITBUCKET_USERNAME && e.BITBUCKET_APP_PASSWORD ? ['-u', `${e.BITBUCKET_USERNAME}:${e.BITBUCKET_APP_PASSWORD}`] : [];
-    const out = await lib.run('curl', ['-sS', '-m', '30', ...auth, url], process.env.HOME, { timeoutMs: 40 * 1000, env: process.env });
+    // The app password in a header file, never on curl's command line (withHeaderFile): `-u user:password` was.
+    const secret = e.BITBUCKET_USERNAME && e.BITBUCKET_APP_PASSWORD
+      ? [`Authorization: Basic ${Buffer.from(`${e.BITBUCKET_USERNAME}:${e.BITBUCKET_APP_PASSWORD}`).toString('base64')}`] : [];
+    const out = await withHeaderFile(secret, (auth) => lib.run('curl', ['-sS', '-m', '30', ...auth, url], process.env.HOME, { timeoutMs: 40 * 1000, env: process.env }));
     if (!out.ok) throw new Error(lib.cliError(String(out.stderr || out.stdout)));
     const data = JSON.parse(String(out.stdout));
     if (data && data.error) throw new Error(String((data.error && data.error.message) || data.error));
